@@ -23,10 +23,16 @@ bmd://workshop/query:ACTIONS
 bmd://workshop/query:EVENTS
 bmd://workshop/query:AUTOMATIONS
 
-### Using the CLI Tool
+### Using Mod Manager
 
-[_Work in Progress (W.I.P.)_](https://github.com/qizzle/bmdm)
-BMD built-in mod manager coming soon™️
+Download the "ModManager" automation from the [Releases tab](https://github.com/RatWasHere/bmods/releases/tag/ModManager-V0.1.2) and place it in your Bot Maker for Discord Steam folder (e.g., `C:\Program Files (x86)\Steam\steamapps\common\Bot Maker For Discord`).
+
+In Bot Maker for Discord, press **CTRL + K** to open the search bar, then search for **Mod Manager** and run it.  
+From there, you can install, update, and delete mods.  
+After installing a mod, make sure to reload (**CTRL + R**) or restart Bot Maker for Discord.
+
+> [!IMPORTANT]  
+> Please make sure that you have an existing command in your project before trying to access the Mod Manager!
 
 ### Manual Installation
 
@@ -57,6 +63,8 @@ Try to use as few packages as possible, especially for simple functionality. Use
 
 AI-generated code is not allowed. While using AI as a tool for assistance is permitted, all code must be created and reviewed by human contributors.
 
+When making major changes (such as adding or removing functionality) to an existing mod, please discuss them with the original author or submit a Pull Request. Minor changes (such as formatting) can be pushed directly.
+
 ## Uploading Mods via GitHub Pull Requests
 
 To contribute your mods to this repository, you can use either the GitHub web interface or your local machine.\
@@ -64,7 +72,7 @@ For a detailed tutorial, [**view this**](https://github.com/RatWasHere/bmods/blo
 
 ## Contact
 
-Join our community on the [Discord server](https://discord.gg/whtjS7BW3u) for support and discussion.
+Join our community on the [Discord server](https://discord.gg/n9PWrxFQFF) for support and discussion.
 
 ## License
 

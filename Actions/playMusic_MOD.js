@@ -1,4 +1,4 @@
-modVersion = "v1.0.5";
+modVersion = "v1.0.6";
 
 module.exports = {
   data: {
@@ -80,10 +80,10 @@ module.exports = {
         requestedBy: message.author?.id || message.user?.id,
         nodeOptions: {
           metadata: { channel: message.channel.id },
-          leaveOnEnd: !!bridge.transf(values.leaveOnEnd.value),
-          leaveOnEmpty: !!bridge.transf(values.leaveOnEmpty.value),
-          leaveOnStop: !!bridge.transf(values.leaveOnStop.value),
-          selfDeaf: !!bridge.transf(values.selfDeaf.value),
+          leaveOnEnd: values.leaveOnEnd,
+          leaveOnEmpty: values.leaveOnEmpty,
+          leaveOnStop: values.leaveOnStop,
+          selfDeaf: values.selfDeaf,
         },
       });
 
@@ -108,7 +108,7 @@ module.exports = {
       await client.getMods().require("bgutils-js");
       const { YoutubeiExtractor } = await client
         .getMods()
-        .require("discord-player-youtubei", "1.4.3");
+        .require("discord-player-youtubei", "1.4.6");
 
       client.player = new Player(createOceanicCompat(client));
 

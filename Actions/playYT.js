@@ -1,5 +1,5 @@
-const generatePoToken = require("./generatePoToken");
-modVersion = "s.v1.0 | AceTweaks";
+const generatePoToken = require('./generatePoToken');
+modVersion = "v1.0.0 | AceTweaks"
 
 module.exports = {
   data: {
@@ -11,6 +11,7 @@ module.exports = {
     creator: "Acedia QOLs",
     donate: "https://ko-fi.com/slothyacedia",
   },
+  modules: ["fs", "yt-search", "stream", "@discordjs/voice", "@distube/ytdl-core"],
   UI: [
     {
       element: "input",
@@ -50,57 +51,46 @@ module.exports = {
     },
     {
       element: "text",
-      text: modVersion,
-    },
+      text: modVersion
+    }
   ],
   subtitle: (values, constants) => {
     return `URL: ${values.url} - ${values.queuing}`;
   },
   compatibility: ["Any"],
   async run(values, message, client, bridge) {
-    const fs = require("fs");
-    const search = require("yt-search");
-    const stream = require("stream");
-    const ytdl = require("@distube/ytdl-core");
-    const randInt = (Date.now() * Math.random() * 1000 * Math.random() * 1000)
-      .toString()
-      .replaceAll(".", "")
-      .replaceAll(",", "")
-      .slice(0, 16);
-    const generatedFilePath = `./temp_${new Date().getTime()}_${randInt}.mp3`;
-    const { createAudioResource } = require("@discordjs/voice");
-    let timeoutDur = values.timeoutAfter
-      ? parseInt(bridge.transf(values.timeoutAfter)) * 1000
-      : 60000;
+    const fs = require('fs');
+    const search = require('yt-search');
+    const stream = require('stream');
+    const ytdl = require('@distube/ytdl-core');
+    const randInt = (Date.now()*Math.random()*1000*Math.random()*1000).toString().replaceAll(".","").replaceAll(",","").slice(0,16)
+    const generatedFilePath = `./temp_${new Date().getTime()}_${randInt}.mp3`
+    const { createAudioResource } = require('@discordjs/voice');
+    let timeoutDur = values.timeoutAfter ? parseInt(bridge.transf(values.timeoutAfter))*1000 : 60000
 
     const result = await search(bridge.transf(values.url));
     let url = result.videos[0]?.url || bridge.transf(values.url);
-    try {
+    try{
       await Promise.race([
         new Promise((resolve, reject) => {
-          let stream = ytdl(url, { filter: "audioonly" })
-            .pipe(fs.createWriteStream(generatedFilePath))
-            .on("finish", () => {
-              stream.close();
-              resolve();
-            })
-            .on("error", (err) => {
-              fs.unlinkSync(generatedFilePath);
-              reject(err);
-            });
+          let stream = ytdl(url, { filter: 'audioonly' }).pipe(fs.createWriteStream(generatedFilePath)).on('finish', () => {
+            stream.close();
+            resolve();
+          }).on("error", (err) =>{
+            fs.unlinkSync(generatedFilePath)
+            reject(err)
+          })
         }),
 
-        new Promise((_, reject) =>
-          setTimeout(() => {
-            reject(new Error(`Fetching Audio Took Too Long!`));
-          }, timeoutDur)
-        ),
-      ]);
-    } catch (err) {
-      console.error(err);
-      bridge.call(values.timeoutCondition, values.timeoutActions);
-      fs.unlinkSync(generatedFilePath);
-      return;
+        new Promise((_, reject) => setTimeout(()=> {
+          reject(new Error(`Fetching Audio Took Too Long!`))
+        }, timeoutDur))
+      ])
+    } catch (err){
+      console.error(err)
+      bridge.call(values.timeoutCondition, values.timeoutActions)
+      fs.unlinkSync(generatedFilePath)
+      return
     }
 
     let Readable = stream.Readable.from(fs.readFileSync(generatedFilePath));
@@ -113,6 +103,7 @@ module.exports = {
       name: bridge.guild.id,
     });
 
+
     switch (values.queuing) {
       case `Don't Queue, Just Play`:
         utilities.player.play(audio);
@@ -124,14 +115,9 @@ module.exports = {
           src: "YouTube",
           audio,
           raw: result.videos[0],
-          playURL: url,
+          playURL: url
         };
-        client.emit(
-          "trackStart",
-          bridge.guild,
-          utilities.channel,
-          utilities.nowPlaying
-        );
+        client.emit('trackStart', bridge.guild, utilities.channel, utilities.nowPlaying);
         break;
 
       case `At End Of Queue`:
@@ -142,7 +128,7 @@ module.exports = {
           url: bridge.transf(values.url),
           src: "YouTube",
           audio: audio,
-          raw: result.videos[0],
+          raw: result.videos[0]
         });
         break;
 
@@ -154,7 +140,7 @@ module.exports = {
           url: bridge.transf(values.url),
           src: "YouTube",
           audio: audio,
-          raw: result.videos[0],
+          raw: result.videos[0]
         });
         break;
 
@@ -166,7 +152,7 @@ module.exports = {
           url: bridge.transf(values.url),
           src: "YouTube",
           audio: audio,
-          raw: result.videos[0],
+          raw: result.videos[0]
         });
         break;
     }

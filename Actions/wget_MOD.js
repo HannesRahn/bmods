@@ -1,11 +1,11 @@
-modVersion = "s.v1.0";
+modVersion = "v1.0.4"
 module.exports = {
   data: {
-    name: "wget Download",
+    name: "wget Download"
   },
   aliases: ["Download File"],
-  modules: ["wget-improved", "fs", "path"],
-  category: "",
+  modules: ["wget-improved", "node:fs", "node:path"],
+  category: "WebAPIs",
   info: {
     source: "https://github.com/slothyace/bmods-acedia/tree/main/Actions",
     creator: "Acedia",
@@ -21,7 +21,7 @@ module.exports = {
       element: "input",
       storeAs: "filePath",
       name: "File Path",
-      placeholder: "example/file.xyz",
+      placeholder: "example/file.xyz"
     },
     {
       element: "store",
@@ -35,74 +35,86 @@ module.exports = {
     },
     "-",
     {
-      element: "toggle",
-      storeAs: "deleteAfter",
-      name: "Delete File?",
+      element: "toggleGroup",
+      storeAs: ["deleteAfter", "logging"],
+      nameSchemes: ["Delete File After?", "Print Logs?"]
     },
     "-",
     {
       element: "condition",
       storeAs: "onError",
       storeActionsAs: "onErrorActions",
-      name: "On Error",
+      name: "On Error"
     },
     {
       element: "text",
-      text: modVersion,
-    },
+      text: modVersion
+    }
   ],
 
-  subtitle: (values, constants, thisAction) => {
-    // To use thisAction, constants must also be present
-    return `Download ${values.dlLink || "Nothing"} To ${
-      values.filePath || "The Void"
-    }`;
+  subtitle: (values, constants, thisAction) =>{ // To use thisAction, constants must also be present
+    return `Download ${values.dlLink || "Nothing"} To ${values.filePath || "The Void"}`
   },
 
   compatibility: ["Any"],
 
-  async run(values, message, client, bridge) {
-    // This is the exact order of things required, other orders will brick
-    for (const moduleName of this.modules) {
-      await client.getMods().require(moduleName);
+  async run(values, message, client, bridge){ // This is the exact order of things required, other orders will brick
+    for (const moduleName of this.modules){
+      await client.getMods().require(moduleName)
     }
 
-    const wget = require("wget-improved");
-    const fs = require("fs");
-    const path = require("path");
-    const options = {};
-    let dlLink = bridge.transf(values.dlLink);
-    let filePath = path.normalize(bridge.transf(values.filePath) || "./");
-    let fileDir = path.dirname(filePath);
-    if (fs.existsSync(fileDir) == false) {
-      fs.mkdirSync(fileDir, { recursive: true });
-    }
+    const wget = require("wget-improved")
+    const fs = require("node:fs")
+    const path = require("node:path")
+    const options = {}
+    let dlLink = bridge.transf(values.dlLink)
+    let relativePath = path.normalize(bridge.transf(values.filePath) || `./`)
 
+    const botData = require("../data.json")
+    const workingDir = path.normalize(process.cwd())
+    let projectFolder
+    if (workingDir.includes(path.join("common", "Bot Maker For Discord"))){
+      projectFolder = botData.prjSrc
+    } else {projectFolder = workingDir}
+
+    let filePath = path.join(projectFolder, relativePath)
+    let fileDir = path.dirname(filePath)
+    if (fs.existsSync(fileDir) == false){fs.mkdirSync(fileDir, {recursive: true})}
+    
     await new Promise((resolve, reject) => {
-      let download = wget.download(dlLink, filePath, options);
+      let download = wget.download(dlLink, filePath, options)
 
-      download.on("error", function (err) {
-        console.log(err);
-        bridge.call(values.onError, values.onErrorActions);
-        return resolve(err);
-      });
-
-      download.on("start", function (fileSize) {});
-
-      download.on("end", function (output) {
-        console.log(`File Download From ${dlLink} Completed, ${output}`);
-        let fileSize = fs.statSync(`./${filePath}`).size;
-        if (values.fileBuffer) {
-          fileRead = bridge.fs.readFileSync(`./${filePath}`);
-          bridge.store(values.fileBuffer, fileRead);
+      download.on("error", function(err){
+        if (values.logging){
+          console.log(err)
         }
-        bridge.store(values.fileSize, fileSize);
-        return resolve();
-      });
-    });
+        bridge.call(values.onError, values.onErrorActions)
+        return resolve(err)
+      })
 
-    if (values.deleteAfter == true) {
-      fs.unlinkSync(`./${filePath}`);
+      download.on("start", function(fileSize){
+        if(values.logging){
+          console.log(`Download Starting...`)
+        }
+      })
+
+      download.on("end", function(output){
+        if (values.logging){
+          console.log(`File Download From ${dlLink} Completed, ${output} ${filePath}`)
+        }
+        let fileSize = fs.statSync(filePath).size
+        let fileRead = fs.readFileSync(filePath)
+        bridge.store(values.fileBuffer, fileRead)
+        bridge.store(values.fileSize, fileSize)
+        return resolve()
+      })
+    })
+
+    if (values.deleteAfter == true){
+      fs.unlinkSync(filePath)
+      if(values.logging){
+        console.log(`${filePath} Deleted`)
+      }
     }
-  },
-};
+  }
+}
