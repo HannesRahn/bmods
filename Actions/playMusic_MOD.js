@@ -1,5 +1,3 @@
-modVersion = "v1.0.6";
-
 module.exports = {
   data: {
     name: "Play Music",
@@ -8,7 +6,7 @@ module.exports = {
   info: {
     source: "https://github.com/ratWasHere/bmods",
     creator: "TheMonDon",
-    donate: "https://cisn.xyz/donate",
+    donate: "https://cisn.xyz/Donate",
   },
   modules: [
     "discord-player",
@@ -60,11 +58,6 @@ module.exports = {
       storeAs: "ifError",
       storeActionsAs: "ifErrorActions",
       name: "If Error",
-    },
-    "-",
-    {
-      element: "text",
-      text: modVersion,
     },
   ],
   subtitle: (data, constants) => {
